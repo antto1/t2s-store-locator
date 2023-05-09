@@ -2,7 +2,8 @@
 /*
 Plugin Name: T2s Store locator
 Description: A store location plugin that queries the name of the store
-Author: Antto
+Author: Theme 2 site
+Author URI: http://theme2site.com/
 Version: 1.0.0
 */
 define('ASL_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -17,11 +18,11 @@ function asl_setup()
 {
     // Registers custom Post Type.
     $labels = array(
-        'name' => 'T2s Stores',
-        'singular_name' => 'T2s Store',
-        'name_admin_bar' => 'T2s Store',
-        'add_new' => __( 'Add' ).'T2s Store',
-        'add_new_item' => __( 'Add' ).'T2s Store',
+        'name' => 'Stores',
+        'singular_name' => 'Store',
+        'name_admin_bar' => 'Store',
+        'add_new' => __( 'Add' ).'Store',
+        'add_new_item' => __( 'Add' ).'Store',
     );
     $args = array(
         'labels' => apply_filters( 't2s_stores_labels', $labels ),
@@ -46,12 +47,12 @@ function asl_setup()
 
     // Register new taxonomy
     $labels = array(
-        'name' => 'T2s Store Categories',
-        'singular_name' => 'T2s Store Category',
-        'menu_name' => 'T2s Store Categories',
+        'name' => 'Store Categories',
+        'singular_name' => 'Store Category',
+        'menu_name' => 'Store Categories',
     );
     $args = array(
-        'label' => 'T2s Store Categories',
+        'label' => 'Store Categories',
         'labels' => apply_filters( 't2s_store_categories_labels', $labels ),
         'hierarchical' => true,
         'public' => true,
@@ -79,6 +80,12 @@ register_deactivation_hook( __FILE__, 'asl_deactivation' );
 // </step2>
 
 // <step3>
+function t2s_admin_theme_style() {
+    wp_enqueue_style('t2s-bootstrap', plugins_url('assets/css/bootstrap.min.css', __FILE__));
+}
+add_action('admin_enqueue_scripts', 't2s_admin_theme_style');
+add_action('login_enqueue_scripts', 't2s_admin_theme_style');
+
 add_action( 'add_meta_boxes', 'cd_meta_box_add' );
 function cd_meta_box_add()
 {
@@ -93,40 +100,60 @@ function cd_meta_box_cb()
     $longitude = isset( $values['store_map_meta_box_longitude'] ) ? esc_attr( $values['store_map_meta_box_longitude'][0] ) : '';
     $latitude = isset( $values['store_map_meta_box_latitude'] ) ? esc_attr( $values['store_map_meta_box_latitude'][0] ) : '';
 ?>
-    <p>
-        <label for="store_map_meta_box_address">地址</label>
-        <input type="text" name="store_map_meta_box_address" id="store_map_meta_box_address" value="<?php echo $address; ?>" />
-    </p>
-    <p>
-        <label for="store_map_meta_box_longitude">经度</label>
-        <input type="text" name="store_map_meta_box_longitude" id="store_map_meta_box_longitude" value="<?php echo $longitude; ?>" />
-    </p>
-    <p>
-        <label for="store_map_meta_box_latitude">纬度</label>
-        <input type="text" name="store_map_meta_box_latitude" id="store_map_meta_box_latitude" value="<?php echo $latitude; ?>" />
-    </p>
-    <!--通过地址搜索谷歌地图位置并查找经纬度-->
-    <input type="text" id="address" name="address" value="" />
-    <input type="button" id="search" value="Search" />
-    <h1>Click on the map to get latitude and longitude</h1>
-    <div id="map" style="height: 400px;width: 100%;"></div>
-    <div id="coordinates"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBsmPTMJTZ174d6TFechfzqIuwRIMuBc_s&callback=initMap" async defer></script>
+    <div class="row mt-3">
+        <div class="col-12 form-group">
+            <label class="form-label" for="store_map_meta_box_address">Address</label>
+            <input class="form-control" type="text" name="store_map_meta_box_address" id="store_map_meta_box_address" value="<?php echo $address; ?>" />
+        </div>
+        <div class="col-6 form-group">
+            <label class="form-label" for="store_map_meta_box_latitude">Latitude</label>
+            <input class="form-control" type="text" name="store_map_meta_box_latitude" id="store_map_meta_box_latitude" value="<?php echo $latitude; ?>" />
+        </div>
+        <div class="col-6 form-group">
+            <label class="form-label" for="store_map_meta_box_longitude">Longitude</label>
+            <input class="form-control" type="text" name="store_map_meta_box_longitude" id="store_map_meta_box_longitude" value="<?php echo $longitude; ?>" />
+        </div>
+    </div>
+    <input
+        id="pac-input"
+        class="map-search-controls"
+        type="text"
+        placeholder="Search"
+        style="
+            margin: 10px 0;
+            width: calc(100% - 256px);
+            height: 40px;
+            border: 0;
+            background: none padding-box rgb(255, 255, 255);
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+            border-radius: 2px;
+        "
+    />
+    <div id="map" style="height: 500px;width: 100%;"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo get_option('t2s_google_map_api'); ?>&callback=initAutocomplete&libraries=places&v=weekly" async defer></script>
     <script>
-        // 初始化地图
-        function initMap() {
-            const mapCenter = { lat: 40.730610, lng: -73.935242 }; // Default center coordinates (New York City)
-            const map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 12,
-                center: mapCenter,
-            });
+        function displayCoordinates(latLng, address) {
+            document.getElementById("store_map_meta_box_latitude").value = latLng.lat().toFixed(6);
+            document.getElementById("store_map_meta_box_longitude").value = latLng.lng().toFixed(6);
+            document.getElementById("store_map_meta_box_address").value = address ? address : '';
+        }
 
+        function initAutocomplete() {
+            const mapCenter = { lat: -33.8688, lng: 151.2195 };
+            <?php if($latitude && $longitude){ ?>
+                mapCenter.lat = <?php echo $latitude; ?>;
+                mapCenter.lng = <?php echo $longitude; ?>;
+            <?php } ?>
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: mapCenter,
+                zoom: 13,
+                mapTypeId: "roadmap",
+            });
             const marker = new google.maps.Marker({
                 position: mapCenter,
                 map: map,
                 draggable: true,
             });
-
             google.maps.event.addListener(map, "click", (event) => {
                 const latLng = event.latLng;
                 marker.setPosition(latLng);
@@ -136,17 +163,71 @@ function cd_meta_box_cb()
                 const latLng = event.latLng;
                 displayCoordinates(latLng);
             });
-            displayCoordinates(mapCenter);
-        }
-        // 显示经纬度
-        function displayCoordinates(latLng) {
-            document.getElementById("store_map_meta_box_longitude").value = latLng.lat().toFixed(6);
-            document.getElementById("store_map_meta_box_latitude").value = latLng.lng().toFixed(6);
-        }
-        // 搜索地址定位谷歌地图并显示经纬度
-        function getPosition(params) {
 
+            // Create the search box and link it to the UI element.
+            const input = document.getElementById("pac-input");
+            const searchBox = new google.maps.places.SearchBox(input);
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+            // Bias the SearchBox results towards current map's viewport.
+            map.addListener("bounds_changed", () => {
+                searchBox.setBounds(map.getBounds());
+            });
+            let markers = [];
+
+            // Listen for the event fired when the user selects a prediction and retrieve
+            // more details for that place.
+            searchBox.addListener("places_changed", () => {
+                const places = searchBox.getPlaces();
+                if (places.length == 0) {
+                    return;
+                }
+                console.log(places)
+                // Clear out the old markers.
+                markers.forEach((marker) => {
+                    marker.setMap(null);
+                });
+                markers = [];
+
+                // For each place, get the icon, name and location.
+                const bounds = new google.maps.LatLngBounds();
+
+                marker.setPosition(places[0].geometry.location, places[0].formatted_address);
+                displayCoordinates(places[0].geometry.location, places[0].formatted_address);
+
+                places.forEach((place) => {
+                    if (!place.geometry || !place.geometry.location) {
+                        console.log("Returned place contains no geometry");
+                        return;
+                    }
+
+                    const icon = {
+                        url: place.icon,
+                        size: new google.maps.Size(71, 71),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(17, 34),
+                        scaledSize: new google.maps.Size(25, 25),
+                    };
+
+                    // Create a marker for each place.
+                    markers.push(
+                        new google.maps.Marker({
+                            map,
+                            icon,
+                            title: place.name,
+                            position: place.geometry.location,
+                        })
+                    );
+                    if (place.geometry.viewport) {
+                        // Only geocodes have viewport.
+                        bounds.union(place.geometry.viewport);
+                    } else {
+                        bounds.extend(place.geometry.location);
+                    }
+                });
+                map.fitBounds(bounds);
+            });
         }
+        window.initAutocomplete = initAutocomplete;
     </script>
 <?php
 }
@@ -254,9 +335,21 @@ function t2s_store_locator_admin()
 <?php
 }
 
-add_action('admin_menu', 'asl_add_menu');
+// add_action('admin_menu', 'asl_add_menu');
 function asl_add_menu()
 {
     global $my_plugin_hook;
     $my_plugin_hook = add_options_page('T2s Store locator', 'T2s Store locator', 'manage_options', 't2s_store_locator', 't2s_store_locator_admin');
 }
+
+// Add options
+function t2s_register_options() {
+    register_setting( 'general', 't2s_google_map_api' );
+    add_settings_field( 't2s_google_map_api', '<label for="t2s_google_map_api">Google map api</label>', 't2s_google_map_api_function', 'general' );
+}
+
+function t2s_google_map_api_function() {
+    $value = get_option( 't2s_google_map_api', '' );
+    echo '<input type="text" name="t2s_google_map_api" id="t2s_google_map_api" class="regular-text" value="'.$value.'" />';
+}
+add_filter( 'admin_init' , 't2s_register_options' );
