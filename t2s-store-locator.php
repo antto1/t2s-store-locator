@@ -6,15 +6,15 @@ Author: Theme 2 site
 Author URI: http://theme2site.com/
 Version: 1.0.0
 */
-define('ASL_PLUGIN_BASENAME', plugin_basename(__FILE__));
-define('ASL_PLUGIN_NAME', trim(dirname(ASL_PLUGIN_BASENAME), '/'));
-define('ASL_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . ASL_PLUGIN_NAME);
-define('ASL_PLUGIN_URL', WP_PLUGIN_URL . '/' . ASL_PLUGIN_NAME);
-define('ASL_OPTIONS_PREFIX', 'asl_');
-define('ASL_PLUGIN_VERSION', '1.0.0');
+define('T2S_STORE_LOCATOR_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('T2S_STORE_LOCATOR_PLUGIN_NAME', trim(dirname(T2S_STORE_LOCATOR_PLUGIN_BASENAME), '/'));
+define('T2S_STORE_LOCATOR_PLUGIN_DIR', WP_PLUGIN_DIR . '/' . T2S_STORE_LOCATOR_PLUGIN_NAME);
+define('T2S_STORE_LOCATOR_PLUGIN_URL', WP_PLUGIN_URL . '/' . T2S_STORE_LOCATOR_PLUGIN_NAME);
+define('T2S_STORE_LOCATOR_OPTIONS_PREFIX', 'T2sStoreLocator_');
+define('T2S_STORE_LOCATOR_PLUGIN_VERSION', '1.0.0');
 
 // <step1>
-function asl_setup()
+function T2sStoreLocator_setup()
 {
     // Registers custom Post Type.
     $labels = array(
@@ -68,50 +68,50 @@ function asl_setup()
     );
     register_taxonomy( 't2s_store_categories', 't2s_stores', apply_filters( 't2s_store_categories_register_args', $args, 't2s_store_categories', 't2s_stores' ) );
 }
-add_action( 'init', 'asl_setup' );
+add_action( 'init', 'T2sStoreLocator_setup' );
 // </step1>
 
 // <step2>
-function asl_deactivation() {
+function T2sStoreLocator_deactivation() {
     unregister_post_type( 't2s_stores' );
     unregister_taxonomy( 't2s_store_categories' );
 }
-register_deactivation_hook( __FILE__, 'asl_deactivation' );
+register_deactivation_hook( __FILE__, 'T2sStoreLocator_deactivation' );
 // </step2>
 
 // <step3>
-function t2s_admin_theme_style() {
+function T2sStoreLocator_style() {
     wp_enqueue_style('t2s-bootstrap', plugins_url('assets/css/bootstrap.min.css', __FILE__));
 }
-add_action('admin_enqueue_scripts', 't2s_admin_theme_style');
-add_action('login_enqueue_scripts', 't2s_admin_theme_style');
+add_action('admin_enqueue_scripts', 'T2sStoreLocator_style');
+add_action('login_enqueue_scripts', 'T2sStoreLocator_style');
 
-add_action( 'add_meta_boxes', 'cd_meta_box_add' );
-function cd_meta_box_add()
+add_action( 'add_meta_boxes', 'T2sStoreLocator_add_meta_box' );
+function T2sStoreLocator_add_meta_box()
 {
-    add_meta_box( 'store_map_meta_box', 'STORE MAP', 'cd_meta_box_cb', 't2s_stores', 'normal', 'high' );
+    add_meta_box( 'T2sStoreLocator_meta', 'STORE MAP', 'T2sStoreLocator_meta_box_cb', 't2s_stores', 'normal', 'high' );
 }
 
-function cd_meta_box_cb()
+function T2sStoreLocator_meta_box_cb()
 {
     global $post;
     $values = get_post_custom( $post->ID );
-    $address = isset( $values['store_map_meta_box_address'] ) ? esc_attr( $values['store_map_meta_box_address'][0] ) : '';
-    $longitude = isset( $values['store_map_meta_box_longitude'] ) ? esc_attr( $values['store_map_meta_box_longitude'][0] ) : '';
-    $latitude = isset( $values['store_map_meta_box_latitude'] ) ? esc_attr( $values['store_map_meta_box_latitude'][0] ) : '';
+    $address = isset( $values['T2sStoreLocator_meta_address'] ) ? esc_attr( $values['T2sStoreLocator_meta_address'][0] ) : '';
+    $longitude = isset( $values['T2sStoreLocator_meta_longitude'] ) ? esc_attr( $values['T2sStoreLocator_meta_longitude'][0] ) : '';
+    $latitude = isset( $values['T2sStoreLocator_meta_latitude'] ) ? esc_attr( $values['T2sStoreLocator_meta_latitude'][0] ) : '';
 ?>
     <div class="row mt-3">
         <div class="col-12 form-group">
-            <label class="form-label" for="store_map_meta_box_address">Address</label>
-            <input class="form-control" type="text" name="store_map_meta_box_address" id="store_map_meta_box_address" value="<?php echo $address; ?>" />
+            <label class="form-label" for="T2sStoreLocator_meta_address">Address</label>
+            <input class="form-control" type="text" name="T2sStoreLocator_meta_address" id="T2sStoreLocator_meta_address" value="<?php echo $address; ?>" />
         </div>
         <div class="col-6 form-group">
-            <label class="form-label" for="store_map_meta_box_latitude">Latitude</label>
-            <input class="form-control" type="text" name="store_map_meta_box_latitude" id="store_map_meta_box_latitude" value="<?php echo $latitude; ?>" />
+            <label class="form-label" for="T2sStoreLocator_meta_latitude">Latitude</label>
+            <input class="form-control" type="text" name="T2sStoreLocator_meta_latitude" id="T2sStoreLocator_meta_latitude" value="<?php echo $latitude; ?>" />
         </div>
         <div class="col-6 form-group">
-            <label class="form-label" for="store_map_meta_box_longitude">Longitude</label>
-            <input class="form-control" type="text" name="store_map_meta_box_longitude" id="store_map_meta_box_longitude" value="<?php echo $longitude; ?>" />
+            <label class="form-label" for="T2sStoreLocator_meta_longitude">Longitude</label>
+            <input class="form-control" type="text" name="T2sStoreLocator_meta_longitude" id="T2sStoreLocator_meta_longitude" value="<?php echo $longitude; ?>" />
         </div>
     </div>
     <input
@@ -130,12 +130,12 @@ function cd_meta_box_cb()
         "
     />
     <div id="map" style="height: 500px;width: 100%;"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo get_option('t2s_google_map_api'); ?>&callback=initAutocomplete&libraries=places&v=weekly" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo get_option('T2sStoreLocator_google_map_api'); ?>&callback=initAutocomplete&libraries=places&v=weekly" async defer></script>
     <script>
         function displayCoordinates(latLng, address) {
-            document.getElementById("store_map_meta_box_latitude").value = latLng.lat().toFixed(6);
-            document.getElementById("store_map_meta_box_longitude").value = latLng.lng().toFixed(6);
-            document.getElementById("store_map_meta_box_address").value = address ? address : '';
+            document.getElementById("T2sStoreLocator_meta_latitude").value = latLng.lat().toFixed(6);
+            document.getElementById("T2sStoreLocator_meta_longitude").value = latLng.lng().toFixed(6);
+            document.getElementById("T2sStoreLocator_meta_address").value = address ? address : '';
         }
 
         function initAutocomplete() {
@@ -232,31 +232,31 @@ function cd_meta_box_cb()
 <?php
 }
 
-add_action( 'save_post', 'cd_meta_box_save' );
-function cd_meta_box_save( $post_id )
+add_action( 'save_post', 'T2sStoreLocator_meta_box_save' );
+function T2sStoreLocator_meta_box_save( $post_id )
 {
     // Bail if we're doing an auto save
     if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
     // if our current user can't edit this post, bail
     if( !current_user_can( 'edit_post', $post_id ) ) return;
     // now we can actually save the data
-    if( isset( $_POST['store_map_meta_box_address'] ) )
-        update_post_meta( $post_id, 'store_map_meta_box_address', esc_attr( $_POST['store_map_meta_box_address'] ) );
+    if( isset( $_POST['T2sStoreLocator_meta_address'] ) )
+        update_post_meta( $post_id, 'T2sStoreLocator_meta_address', esc_attr( $_POST['T2sStoreLocator_meta_address'] ) );
 
-    if( isset( $_POST['store_map_meta_box_longitude'] ) )
-        update_post_meta( $post_id, 'store_map_meta_box_longitude', esc_attr( $_POST['store_map_meta_box_longitude'] ) );
+    if( isset( $_POST['T2sStoreLocator_meta_longitude'] ) )
+        update_post_meta( $post_id, 'T2sStoreLocator_meta_longitude', esc_attr( $_POST['T2sStoreLocator_meta_longitude'] ) );
 
-    if( isset( $_POST['store_map_meta_box_latitude'] ) )
-        update_post_meta( $post_id, 'store_map_meta_box_latitude', esc_attr( $_POST['store_map_meta_box_latitude'] ) );
+    if( isset( $_POST['T2sStoreLocator_meta_latitude'] ) )
+        update_post_meta( $post_id, 'T2sStoreLocator_meta_latitude', esc_attr( $_POST['T2sStoreLocator_meta_latitude'] ) );
 }
 // </step3>
 
 // <step4>
-function register_store_map_shortcode() {
-    require_once(ASL_PLUGIN_DIR . '/template/base.php');
-    require_once(ASL_PLUGIN_DIR . '/template/default.php');
+function T2sStoreLocator_register_shortcode() {
+    require_once(T2S_STORE_LOCATOR_PLUGIN_DIR . '/template/base.php');
+    require_once(T2S_STORE_LOCATOR_PLUGIN_DIR . '/template/default.php');
 }
-add_shortcode('t2s_store', 'register_store_map_shortcode');
+add_shortcode('T2S_STORE', 'T2sStoreLocator_register_shortcode');
 // </step4>
 
 // <step5>
@@ -265,15 +265,16 @@ add_shortcode('t2s_store', 'register_store_map_shortcode');
  *
  * @return void
  */
-function get_stores()
+function T2sStoreLocator_get_stores()
 {
-    if (isset($_POST['action']) && $_POST['action'] == 'get_stores') {
+    if (isset($_POST['action']) && $_POST['action'] == 'T2sStoreLocator_get_stores') {
         $storesSearchInput = $_POST['storesSearchInput'];
         $query_args = array(
             'post_type' => 't2s_stores',
             'posts_per_page' => -1,
             'post_status' => 'publish',
-            'post_parent' => 0
+            'post_parent' => 0,
+            's' => $storesSearchInput
         );
         $the_query = new WP_Query($query_args);
         $data1 = '';
@@ -281,9 +282,9 @@ function get_stores()
         if($the_query->have_posts()){
             while ($the_query->have_posts()) : $the_query->the_post();
                 global $post;
-                $address = get_post_meta($post->ID, 'store_map_meta_box_address') ? get_post_meta($post->ID, 'store_map_meta_box_address')[0] : '';
-                $lng = get_post_meta($post->ID, 'store_map_meta_box_longitude') ? get_post_meta($post->ID, 'store_map_meta_box_longitude')[0] : '';
-                $lat = get_post_meta($post->ID, 'store_map_meta_box_latitude') ? get_post_meta($post->ID, 'store_map_meta_box_latitude')[0] : '';
+                $address = get_post_meta($post->ID, 'T2sStoreLocator_meta_address') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_address')[0] : '';
+                $lng = get_post_meta($post->ID, 'T2sStoreLocator_meta_longitude') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_longitude')[0] : '';
+                $lat = get_post_meta($post->ID, 'T2sStoreLocator_meta_latitude') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_latitude')[0] : '';
                 $location  =  [
                     'title'   => get_the_title(),
                     'link'    => get_the_permalink(),
@@ -317,19 +318,19 @@ function get_stores()
     wp_reset_query();
     die();
 }
-add_action("wp_ajax_get_stores", "get_stores");
-add_action("wp_ajax_nopriv_get_stores", "get_stores");
+add_action("wp_ajax_T2sStoreLocator_get_stores", "T2sStoreLocator_get_stores");
+add_action("wp_ajax_nopriv_T2sStoreLocator_get_stores", "T2sStoreLocator_get_stores");
 // </step5>
 
 // Panel Admin
-function t2s_store_locator_admin()
+function T2sStoreLocator_setting_form()
 {
 ?>
     <div class="wrap">
     <h1>Setting</h1>
     <form method="post" action="options.php">
-        <?php settings_fields( 't2s_store_options' ); ?>
-        <?php do_settings_sections( 't2s_store_options' ); ?>
+        <?php settings_fields( 'T2sStoreLocator_options' ); ?>
+        <?php do_settings_sections( 'T2sStoreLocator_options' ); ?>
         <table class="form-table" role="presentation">
             <tbody>
                 <tr>
@@ -337,7 +338,7 @@ function t2s_store_locator_admin()
                         <label for="blogname">Google map api</label>
                     </th>
                     <td>
-                        <input class="regular-text" type="text" name="t2s_google_map_api" id="t2s_google_map_api" value="<?php echo esc_attr( get_option('t2s_google_map_api') ); ?>" />
+                        <input class="regular-text" type="text" name="T2sStoreLocator_google_map_api" id="T2sStoreLocator_google_map_api" value="<?php echo esc_attr( get_option('T2sStoreLocator_google_map_api') ); ?>" />
                     </td>
                 </tr>
             </tbody>
@@ -348,15 +349,15 @@ function t2s_store_locator_admin()
 <?php
 }
 
-add_action('admin_menu', 'asl_add_menu');
-function asl_add_menu()
+add_action('admin_menu', 'T2sStoreLocator_add_menu');
+function T2sStoreLocator_add_menu()
 {
     global $my_plugin_hook;
-    $my_plugin_hook = add_options_page('T2s Store locator', 'T2s Store locator', 'manage_options', 't2s_store_locator_setting', 't2s_store_locator_admin');
+    $my_plugin_hook = add_options_page('T2s Store locator', 'T2s Store locator', 'manage_options', 'T2sStoreLocator_setting', 'T2sStoreLocator_setting_form');
 }
 
 // Add options
-function add_t2s_register_options() {
-    register_setting( 't2s_store_options', 't2s_google_map_api' );
+function T2sStoreLocator_add_options() {
+    register_setting( 'T2sStoreLocator_options', 'T2sStoreLocator_google_map_api' );
 }
-add_filter( 'admin_init' , 'add_t2s_register_options' );
+add_filter( 'admin_init' , 'T2sStoreLocator_add_options' );

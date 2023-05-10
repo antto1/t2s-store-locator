@@ -12,18 +12,18 @@
         <div class="row small-row t2s-stores-map-wrap">
             <div class="col-12 col-lg-4">
                 <div class="t2s-stores-search-form">
-                    <input class="t2s-stores-search-input" id="projectsSearchInput" type="text" value="" name="projectsSearchInput" placeholder="Search for projects" aria-required="true" />
+                    <input class="t2s-stores-search-input" id="storesSearchInput" type="text" value="" name="storesSearchInput" placeholder="Search for stores" aria-required="true" />
                     <button class="t2s-stores-search-btn" type="search" aria-label="" onclick="buttonSubmit()"><i class="fa fa-search" aria-hidden="true"></i></button>
                 </div>
-                <div class="t2s-stores-search-list" id="projectList">
-                <?php $locations = []; $project_names = [];
+                <div class="t2s-stores-search-list" id="storeList">
+                <?php $locations = []; $store_names = [];
                     if ($the_query->have_posts()) : ?>
                     <?php while ($the_query->have_posts()) : $the_query->the_post(); ?>
                         <?php
                             global $post;
-                            $address = get_post_meta($post->ID, 'store_map_meta_box_address') ? get_post_meta($post->ID, 'store_map_meta_box_address')[0] : '';
-                            $lng = get_post_meta($post->ID, 'store_map_meta_box_longitude') ? get_post_meta($post->ID, 'store_map_meta_box_longitude')[0] : '';
-                            $lat = get_post_meta($post->ID, 'store_map_meta_box_latitude') ? get_post_meta($post->ID, 'store_map_meta_box_latitude')[0] : '';
+                            $address = get_post_meta($post->ID, 'T2sStoreLocator_meta_address') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_address')[0] : '';
+                            $lng = get_post_meta($post->ID, 'T2sStoreLocator_meta_longitude') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_longitude')[0] : '';
+                            $lat = get_post_meta($post->ID, 'T2sStoreLocator_meta_latitude') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_latitude')[0] : '';
                             $locations[]  =  [
                                 'title'   => get_the_title(),
                                 'link'    => get_the_permalink(),
@@ -31,7 +31,7 @@
                                 'lng'     => $lng,
                                 'lat'     => $lat
                             ];
-                            $project_names[]['value'] = get_the_title();
+                            $store_names[]['value'] = get_the_title();
                         ?>
                         <div class="t2s-stores-search-item">
                             <div class="t2s-stores-search-left">
@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="col-12 col-lg-8">
-                <div class="acf-map" data-zoom="7" id="projectMap">
+                <div class="acf-map" data-zoom="7" id="storeMap">
                     <?php foreach ($locations as $location) : ?>
                         <div class="marker" data-lat="<?php echo esc_attr($location['lat']); ?>" data-lng="<?php echo esc_attr($location['lng']); ?>">
                             <h3><a class="marker-title-link" href="<?php echo $location['link']; ?>"><?php echo esc_attr($location['title']); ?></a></h3>
@@ -208,30 +208,30 @@ outerClickAddress = innerClickAddress
 })(jQuery);
 
 function buttonSubmit(){
-    inputvalue = jQuery("#projectsSearchInput").val();
+    inputvalue = jQuery("#storesSearchInput").val();
     submitForm(inputvalue)
 }
 function submitForm(inputvalue) {
-    // var inputvalue = jQuery("#projectsSearchInput").val();
+    // var inputvalue = jQuery("#storesSearchInput").val();
     if(inputvalue){
-        jQuery("#projectList").html('Search...');
-        jQuery("#projectList").change();
+        jQuery("#storeList").html('Search...');
+        jQuery("#storeList").change();
         jQuery.ajax({
             url: '<?php echo admin_url("admin-ajax.php") ?>',
             datatype: "json",
             type: "post",
             data: {
-                action : 'get_stores',
-                projectsSearchInput: inputvalue
+                action : 'T2sStoreLocator_get_stores',
+                storesSearchInput: inputvalue
             },
             success: function (res) {
                 var data = eval('(' + res + ')');
                 var top = data['top'];
                 var bottom = data['bottom'];
-                jQuery("#projectList").html(top);
-                jQuery("#projectList").change();
-                jQuery("#projectMap").html(bottom);
-                jQuery("#projectMap").change();
+                jQuery("#storeList").html(top);
+                jQuery("#storeList").change();
+                jQuery("#storeMap").html(bottom);
+                jQuery("#storeMap").change();
                 outerTesetMap();
             }
         });
@@ -244,8 +244,8 @@ jQuery(document).on('click', '.t2s-stores-search-address', function() {
     outerClickAddress(lat, lng);
 });
 
-var autocompleterData = <?php echo json_encode($project_names, JSON_UNESCAPED_UNICODE); ?>;
-jQuery('#projectsSearchInput').autocomplete({
+var autocompleterData = <?php echo json_encode($store_names, JSON_UNESCAPED_UNICODE); ?>;
+jQuery('#storesSearchInput').autocomplete({
     lookup: autocompleterData,
     triggerSelectOnValidInput: false,
     onSelect: function (suggestion) {
