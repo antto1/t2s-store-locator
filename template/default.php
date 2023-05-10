@@ -9,13 +9,13 @@
             );
             $the_query = new WP_Query($query_args);
         ?>
-        <div class="row small-row projects-map-wrap">
+        <div class="row small-row t2s-stores-map-wrap">
             <div class="col-12 col-lg-4">
-                <div class="projects-search-form">
-                    <input class="projects-search-input" id="projectsSearchInput" type="text" value="" name="projectsSearchInput" placeholder="Search for projects" aria-required="true" />
-                    <button class="projects-search-btn" type="search" aria-label="" onclick="buttonSubmit()"><i class="far fa-search"></i></button>
+                <div class="t2s-stores-search-form">
+                    <input class="t2s-stores-search-input" id="projectsSearchInput" type="text" value="" name="projectsSearchInput" placeholder="Search for projects" aria-required="true" />
+                    <button class="t2s-stores-search-btn" type="search" aria-label="" onclick="buttonSubmit()"><i class="fa fa-search" aria-hidden="true"></i></button>
                 </div>
-                <div class="projects-search-list" id="projectList">
+                <div class="t2s-stores-search-list" id="projectList">
                 <?php $locations = []; $project_names = [];
                     if ($the_query->have_posts()) : ?>
                     <?php while ($the_query->have_posts()) : $the_query->the_post(); ?>
@@ -33,16 +33,12 @@
                             ];
                             $project_names[]['value'] = get_the_title();
                         ?>
-                        <div class="projects-search-item">
-                            <div class="projects-search-left">
-                                <h4 class="projects-search-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h4>
-                                <div class="projects-search-address" data-lat="<?php echo $lat; ?>" data-lng="<?php echo $lng; ?>"><?php echo $address; ?></div>
+                        <div class="t2s-stores-search-item">
+                            <div class="t2s-stores-search-left">
+                                <h4 class="t2s-stores-search-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h4>
+                                <div class="t2s-stores-search-address" data-lat="<?php echo $lat; ?>" data-lng="<?php echo $lng; ?>"><?php echo $address; ?></div>
                             </div>
-                            <div class="projects-search-right">
-                                <a href="<?php the_permalink(); ?>">
-                                    <img width="100" height="100" src="<?php echo get_the_post_thumbnail_url(); ?>">
-                                </a>
-                            </div>
+                            <a class="t2s-stores-search-right" href="<?php the_permalink(); ?>" style="background-image: url(<?php echo get_the_post_thumbnail_url(); ?>);"></a>
                         </div>
                     <?php endwhile; ?>
                 <?php endif; ?>
@@ -242,7 +238,7 @@ function submitForm(inputvalue) {
     }
 };
 
-jQuery(document).on('click', '.projects-search-address', function() {
+jQuery(document).on('click', '.t2s-stores-search-address', function() {
     let lat = jQuery(this).attr('data-lat');
     let lng = jQuery(this).attr('data-lng');
     outerClickAddress(lat, lng);

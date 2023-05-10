@@ -291,16 +291,12 @@ function get_stores()
                     'lng'     => $lng,
                     'lat'     => $lat
                 ];
-                $data1 .= '<div class="stores-search-item">';
-                $data1 .= '<div class="stores-search-left">';
-                $data1 .= '<h4 class="stores-search-title"><a href="'.get_the_permalink().'">'.get_the_title().'</a></h4>';
-                $data1 .= '<div class="stores-search-address" data-lat="'.$location['lat'].'" data-lng="'.$location['lng'].'">'.$location['address'].'</div>';
+                $data1 .= '<div class="t2s-stores-search-item">';
+                $data1 .= '<div class="t2s-stores-search-left">';
+                $data1 .= '<h4 class="t2s-stores-search-title"><a href="'.get_the_permalink().'">'.get_the_title().'</a></h4>';
+                $data1 .= '<div class="t2s-stores-search-address" data-lat="'.$location['lat'].'" data-lng="'.$location['lng'].'">'.$location['address'].'</div>';
                 $data1 .= '</div>';
-                $data1 .= '<div class="stores-search-right">';
-                $data1 .= '<a href="'.get_the_permalink().'">';
-                $data1 .= '<img src="'.get_the_post_thumbnail_url().'">';
-                $data1 .= '</a>';
-                $data1 .= '</div>';
+                $data1 .= '<a class="t2s-stores-search-right" href="'.get_the_permalink().'" style="background-image: url('.get_the_post_thumbnail_url().');"></a>';
                 $data1 .= '</div>';
                 $data2 .= '<div class="marker" data-lat="'.esc_attr($location['lat']).'" data-lng="'.esc_attr($location['lng']).'">';
                 $data2 .= '<h3><a class="marker-title-link" href="'.get_the_permalink().'">'.get_the_title().'</a></h3>';
@@ -328,28 +324,39 @@ add_action("wp_ajax_nopriv_get_stores", "get_stores");
 // Panel Admin
 function t2s_store_locator_admin()
 {
-    global $wpdb, $my_plugin_hook;
 ?>
     <div class="wrap">
+    <h1>Setting</h1>
+    <form method="post" action="options.php">
+        <?php settings_fields( 't2s_store_options' ); ?>
+        <?php do_settings_sections( 't2s_store_options' ); ?>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <label for="blogname">Google map api</label>
+                    </th>
+                    <td>
+                        <input class="regular-text" type="text" name="t2s_google_map_api" id="t2s_google_map_api" value="<?php echo esc_attr( get_option('t2s_google_map_api') ); ?>" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <?php submit_button(); ?>
+    </form>
     </div>
 <?php
 }
 
-// add_action('admin_menu', 'asl_add_menu');
+add_action('admin_menu', 'asl_add_menu');
 function asl_add_menu()
 {
     global $my_plugin_hook;
-    $my_plugin_hook = add_options_page('T2s Store locator', 'T2s Store locator', 'manage_options', 't2s_store_locator', 't2s_store_locator_admin');
+    $my_plugin_hook = add_options_page('T2s Store locator', 'T2s Store locator', 'manage_options', 't2s_store_locator_setting', 't2s_store_locator_admin');
 }
 
 // Add options
-function t2s_register_options() {
-    register_setting( 'general', 't2s_google_map_api' );
-    add_settings_field( 't2s_google_map_api', '<label for="t2s_google_map_api">Google map api</label>', 't2s_google_map_api_function', 'general' );
+function add_t2s_register_options() {
+    register_setting( 't2s_store_options', 't2s_google_map_api' );
 }
-
-function t2s_google_map_api_function() {
-    $value = get_option( 't2s_google_map_api', '' );
-    echo '<input type="text" name="t2s_google_map_api" id="t2s_google_map_api" class="regular-text" value="'.$value.'" />';
-}
-add_filter( 'admin_init' , 't2s_register_options' );
+add_filter( 'admin_init' , 'add_t2s_register_options' );
