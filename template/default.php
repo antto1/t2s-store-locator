@@ -21,9 +21,9 @@
                     <?php while ($the_query->have_posts()) : $the_query->the_post(); ?>
                         <?php
                             global $post;
-                            $address = get_post_meta($post->ID, 'T2sStoreLocator_meta_address') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_address')[0] : '';
-                            $lng = get_post_meta($post->ID, 'T2sStoreLocator_meta_longitude') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_longitude')[0] : '';
-                            $lat = get_post_meta($post->ID, 'T2sStoreLocator_meta_latitude') ? get_post_meta($post->ID, 'T2sStoreLocator_meta_latitude')[0] : '';
+                            $address = get_post_meta($post->ID, 'T2SStoreLocator_meta_address') ? get_post_meta($post->ID, 'T2SStoreLocator_meta_address')[0] : '';
+                            $lng = get_post_meta($post->ID, 'T2SStoreLocator_meta_longitude') ? get_post_meta($post->ID, 'T2SStoreLocator_meta_longitude')[0] : '';
+                            $lat = get_post_meta($post->ID, 'T2SStoreLocator_meta_latitude') ? get_post_meta($post->ID, 'T2SStoreLocator_meta_latitude')[0] : '';
                             $locations[]  =  [
                                 'title'   => get_the_title(),
                                 'link'    => get_the_permalink(),
@@ -221,7 +221,7 @@ function submitForm(inputvalue) {
             datatype: "json",
             type: "post",
             data: {
-                action : 'T2sStoreLocator_get_stores',
+                action : 'T2SStoreLocator_get_stores',
                 storesSearchInput: inputvalue
             },
             success: function (res) {
